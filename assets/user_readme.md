@@ -19,8 +19,10 @@ Once you have installed these, you can download the latest release from the rele
         - download the latest release from the releases page
         - extract the contents to a folder
     - release contents
+        - ![release contents](images/release_contents.png)
     - config script
         - right click, open with python
+        - ![open with python](images/open_with_python.png)
 - where the code goes
     - zone_0 folder
     - must be called robot.py
@@ -29,15 +31,20 @@ Once you have installed these, you can download the latest release from the rele
 - how to run the simulator
     - startup script
     - UI elements
+        - ![webots UI](images/webots_overview.png)
         - 3d world
         - logs in console
         - play/pause buttons
 - where the logs are
     - location
+        - ![logs location](images/zone_folder.png)
     - naming
-- improving performance ![preferences menu](images/windows_preferences.png) ![reduce graphics](images/reduced_settings.png)
+- improving performance
+    - ![preferences menu](images/windows_preferences.png)
+    - ![reduce graphics](images/reduced_settings.png)
     - disable shadows
     - disable anti-aliasing
 - common issues
     - remember to sleep
-    - reopening the camera overlay ![camera overlay menu](images/camera-overlays.png)
+    - reopening the camera overlay
+    - ![camera overlay menu](images/camera-overlays.png)
