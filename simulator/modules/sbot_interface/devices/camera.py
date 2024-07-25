@@ -80,7 +80,7 @@ class Camera(BaseCamera):
         # A frame is only captured every sample_time milliseconds the camera is enabled
         # so we need to wait for a frame to be captured after enabling the camera.
         # The image data buffer is automatically freed at the end of the timestep.
-        self._device.enable(self.sample_time)
+        self._device.enable(g.timestep)
         g.sleep(self.sample_time / 1000)
 
         image_data_raw = self._device.getImage()

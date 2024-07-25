@@ -46,6 +46,7 @@ PROTO RobotCamera [
     ]
     # In radians, ~45 degrees
     fieldOfView 0.82
+    motionBlur 64  # ~15 fps
     width IS width
     height IS height
     recognition Recognition {
