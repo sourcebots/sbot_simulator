@@ -120,9 +120,6 @@ class Motor(BaseMotor):
                 get_globals().robot.getTime(),
                 std_dev_percent = 5
             ))
-            # value = int(add_jitter(value, (MIN_POWER, MAX_POWER)))
-            # if "left" in name:
-            print(f"{name}: {value}, err_factor: {((value-85) % 100) * ('-' if 'left' in name else '+')}")
 
         self._device.setVelocity(map_to_range(
             value,
