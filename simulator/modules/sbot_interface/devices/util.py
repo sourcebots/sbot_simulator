@@ -4,7 +4,7 @@ from __future__ import annotations
 import threading
 from dataclasses import dataclass
 from math import ceil
-from random import gauss
+import random
 from typing import TypeVar
 
 from controller import (
@@ -152,6 +152,32 @@ def add_jitter(
     std_dev = value * (std_dev_percent / 100.0)
     mean_offset = value * (offset_percent / 100.0)
 
-    error = value + gauss(mean_offset, std_dev)
+    error = value + random.gauss(mean_offset, std_dev)
+    # Ensure the error is within the range
+    return max(value_range[0], min(value_range[1], value + error))
+
+
+def add_motor_jitter(
+    value: float,
+    value_range: tuple[float, float],
+    motor_id: str,
+    t_sec: float,
+    std_dev_percent: float = 2.0,
+    offset_percent: float = 0.0,
+) -> float:
+    """Adds normally distributed jitter, but produces similar results at similar time values.
+    
+    (This prevents teams having reliable motors by setting the power every tick )
+    """
+    std_dev = value * (std_dev_percent / 100.0)
+    mean_offset = value * (offset_percent / 100.0)
+    # hashing by ID ensures two given motors behave differently
+    t = t_sec + (hash(motor_id) / 10**10)
+    curr_random = random.Random(int(t))
+    next_random = random.Random(int(t) + 1)
+    lerp_factor = t % 1
+    gauss_curr = curr_random.gauss(mean_offset, std_dev)
+    gauss_future = next_random.gauss(mean_offset, std_dev)
+    error = (gauss_future * lerp_factor + gauss_curr * (1-lerp_factor))
     # Ensure the error is within the range
     return max(value_range[0], min(value_range[1], value + error))

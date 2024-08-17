@@ -8,7 +8,7 @@ from abc import ABC, abstractmethod
 
 from sbot_interface.devices.util import (
     WebotsDevice,
-    add_jitter,
+    add_motor_jitter,
     get_globals,
     get_robot_device,
     map_to_range,
@@ -112,7 +112,17 @@ class Motor(BaseMotor):
         if value != 0:
             # Apply a small amount of variation to the power setting to simulate
             # inaccuracies in the motor
-            value = int(add_jitter(value, (MIN_POWER, MAX_POWER)))
+            name = self._device.getName()
+            value = int(add_motor_jitter(
+                value,
+                (MIN_POWER, MAX_POWER),
+                name,
+                get_globals().robot.getTime(),
+                std_dev_percent = 5
+            ))
+            # value = int(add_jitter(value, (MIN_POWER, MAX_POWER)))
+            # if "left" in name:
+            print(f"{name}: {value}, err_factor: {((value-85) % 100) * ('-' if 'left' in name else '+')}")
 
         self._device.setVelocity(map_to_range(
             value,
