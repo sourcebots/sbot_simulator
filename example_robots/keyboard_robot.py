@@ -71,7 +71,8 @@ def print_sensors(robot: Robot) -> None:
     }
     reflectance_sensor_names = {
         AnalogPins.A0: "Left",
-        AnalogPins.A1: "Right",
+        AnalogPins.A1: "Center",
+        AnalogPins.A2: "Right",
     }
     touch_sensor_names = {
         10: "Front Left",
