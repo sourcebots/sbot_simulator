@@ -14,8 +14,10 @@ from sbot_interface.devices.util import (
     map_to_range,
 )
 
-MAX_POSITION = 2000
-MIN_POSITION = 1000
+MAX_POSITION = 4000
+MIN_POSITION = 300
+SERVO_MAX = 1980
+SERVO_MIN = 350
 
 
 class BaseServo(ABC):
@@ -92,13 +94,13 @@ class Servo(BaseServo):
     """A servo connected to the Servo board."""
 
     def __init__(self, device_name: str) -> None:
-        self.position = (MAX_POSITION + MIN_POSITION) // 2
         # TODO use setAvailableForce to simulate disabled
         self._enabled = False
         g = get_globals()
         self._device = get_robot_device(g.robot, device_name, WebotsDevice.Motor)
         self._max_position = self._device.getMaxPosition()
         self._min_position = self._device.getMinPosition()
+        self.position = (SERVO_MAX + SERVO_MIN) // 2
 
     def disable(self) -> None:
         """Disable the servo."""
@@ -112,11 +114,11 @@ class Servo(BaseServo):
         """
         # Apply a small amount of variation to the power setting to simulate
         # inaccuracies in the servo
-        value = int(add_jitter(value, (MIN_POSITION, MAX_POSITION)))
+        value = int(add_jitter(value, (SERVO_MIN, SERVO_MAX)))
 
         self._device.setPosition(map_to_range(
             value,
-            (MIN_POSITION, MAX_POSITION),
+            (SERVO_MIN, SERVO_MAX),
             (self._min_position + 0.001, self._max_position - 0.001),
         ))
         self.position = value
