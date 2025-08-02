@@ -167,8 +167,9 @@ def main() -> bool:
         robot_file = get_robot_file(zone)
     except FileNotFoundError as e:
         print(e.args[0])
+        robot.step()
         # Not having a robot file is not an error in dev mode
-        return game_mode == 'comp'
+        return game_mode != 'comp'
 
     # Setup log file
     prefix_and_tee_streams(
