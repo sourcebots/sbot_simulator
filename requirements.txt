@@ -1,3 +1,3 @@
-sbot==2024.0.1
+sbot==2025.1.0
 april_vision==2.2.0
-opencv-python-headless >=4,<5
+opencv-python-headless >=4.8.0.76,<5
