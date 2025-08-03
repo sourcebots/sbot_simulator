@@ -90,6 +90,8 @@ with TemporaryDirectory() as temp_dir_str:
     logger.info("Creating zone folders")
     for i in range(NUM_ZONES):
         Path(temp_dir / f"zone_{i}").mkdir()
+        # Only generate zone 0: SRO only
+        break
 
     shutil.copy(project_root / "example_robots/basic_robot.py", temp_dir / "zone_0/robot.py")
 
