@@ -1,7 +1,8 @@
+# mypy: ignore-errors
 import math
 
 from controller import Keyboard
-from sbot import AnalogPins, Robot
+from sbot import AnalogPin, Colour, arduino, comp, leds, motors, utils, vision
 
 # Any keys still pressed in the following period will be handled again
 # leading to rprinting sensors multiple times
@@ -62,7 +63,7 @@ def angle_str(angle: float) -> str:
         return f"{angle:.4f} rad"
 
 
-def print_sensors(robot: Robot) -> None:
+def print_sensors() -> None:
     ultrasonic_sensor_names = {
         (2, 3): "Front",
         (4, 5): "Left",
@@ -70,9 +71,9 @@ def print_sensors(robot: Robot) -> None:
         (8, 9): "Back",
     }
     reflectance_sensor_names = {
-        AnalogPins.A0: "Left",
-        AnalogPins.A1: "Center",
-        AnalogPins.A2: "Right",
+        AnalogPin.A0: "Left",
+        AnalogPin.A1: "Center",
+        AnalogPin.A2: "Right",
     }
     touch_sensor_names = {
         10: "Front Left",
@@ -83,29 +84,30 @@ def print_sensors(robot: Robot) -> None:
 
     print("Distance sensor readings:")
     for (trigger_pin, echo_pin), name in ultrasonic_sensor_names.items():
-        dist = robot.arduino.ultrasound_measure(trigger_pin, echo_pin)
+        dist = arduino.measure_ultrasound_distance(trigger_pin, echo_pin)
         print(f"({trigger_pin}, {echo_pin}) {name: <12}: {dist:.0f} mm")
 
     print("Touch sensor readings:")
     for pin, name in touch_sensor_names.items():
-        touching = robot.arduino.pins[pin].digital_value
+        touching = arduino.digital_read(pin)
         print(f"{pin} {name: <6}: {touching}")
 
     print("Reflectance sensor readings:")
     for Apin, name in reflectance_sensor_names.items():
-        reflectance = robot.arduino.pins[Apin].analog_value
+        reflectance = arduino.analog_read(Apin)
         print(f"{Apin} {name: <12}: {reflectance:.2f} V")
 
 
-def print_camera_detection(robot: Robot) -> None:
-    markers = robot.camera.see()
+def print_camera_detection() -> None:
+    markers = vision.detect_markers()
     if markers:
         print(f"Found {len(markers)} makers:")
         for marker in markers:
             print(f" #{marker.id}")
             print(
-                f" Position: {marker.distance:.0f} mm, azi: {angle_str(marker.azimuth)}, "
-                f"elev: {angle_str(marker.elevation)}",
+                f" Position: {marker.position.distance:.0f} mm, "
+                f"{angle_str(marker.position.horizontal_angle)} right, "
+                f"{angle_str(marker.position.vertical_angle)} up",
             )
             yaw, pitch, roll = marker.orientation
             print(
@@ -119,11 +121,15 @@ def print_camera_detection(robot: Robot) -> None:
     print()
 
 
-robot = Robot()
-
 keyboard = KeyboardInterface()
 
-key_sense = CONTROLS["sense"][robot.zone]
+# Automatically set the zone controls based on the robot's zone
+# Alternatively, you can set this manually
+# ZONE_CONTROLS = 0
+ZONE_CONTROLS = comp.zone
+
+assert ZONE_CONTROLS < len(CONTROLS["forward"]), \
+    "No controls defined for this zone, alter the ZONE_CONTROLS variable to use in this zone."
 
 print(
     "Note: you need to click on 3D viewport for keyboard events to be picked "
@@ -138,36 +144,42 @@ while True:
     keys = keyboard.process_keys()
 
     # Actions that are run continuously while the key is held
-    if CONTROLS["forward"][robot.zone] in keys["held"]:
+    if CONTROLS["forward"][ZONE_CONTROLS] in keys["held"]:
         left_power += 0.5
         right_power += 0.5
 
-    if CONTROLS["reverse"][robot.zone] in keys["held"]:
+    if CONTROLS["reverse"][ZONE_CONTROLS] in keys["held"]:
         left_power += -0.5
         right_power += -0.5
 
-    if CONTROLS["left"][robot.zone] in keys["held"]:
+    if CONTROLS["left"][ZONE_CONTROLS] in keys["held"]:
         left_power -= 0.25
         right_power += 0.25
 
-    if CONTROLS["right"][robot.zone] in keys["held"]:
+    if CONTROLS["right"][ZONE_CONTROLS] in keys["held"]:
         left_power += 0.25
         right_power -= 0.25
 
-    if CONTROLS["boost"][robot.zone] in keys["held"]:
+    if CONTROLS["boost"][ZONE_CONTROLS] in keys["held"]:
         boost = True
 
     # Actions that are run once when the key is pressed
-    if CONTROLS["sense"][robot.zone] in keys["pressed"]:
-        print_sensors(robot)
+    if CONTROLS["sense"][ZONE_CONTROLS] in keys["pressed"]:
+        print_sensors()
 
-    if CONTROLS["see"][robot.zone] in keys["pressed"]:
-        print_camera_detection(robot)
+    if CONTROLS["see"][ZONE_CONTROLS] in keys["pressed"]:
+        print_camera_detection()
 
-    if CONTROLS["led"][robot.zone] in keys["pressed"]:
-        pass
+    if CONTROLS["led"][ZONE_CONTROLS] in keys["pressed"]:
+        leds.set_colour(0, Colour.MAGENTA)
+        leds.set_colour(1, Colour.MAGENTA)
+        leds.set_colour(2, Colour.MAGENTA)
+    elif CONTROLS["led"][ZONE_CONTROLS] in keys["released"]:
+        leds.set_colour(0, Colour.OFF)
+        leds.set_colour(1, Colour.OFF)
+        leds.set_colour(2, Colour.OFF)
 
-    if CONTROLS["angle_unit"][robot.zone] in keys["pressed"]:
+    if CONTROLS["angle_unit"][ZONE_CONTROLS] in keys["pressed"]:
         USE_DEGREES = not USE_DEGREES
         print(f"Angle unit set to {'degrees' if USE_DEGREES else 'radians'}")
 
@@ -176,7 +188,7 @@ while True:
         left_power = max(min(left_power * 2, 1), -1)
         right_power = max(min(right_power * 2, 1), -1)
 
-    robot.motor_board.motors[0].power = left_power
-    robot.motor_board.motors[1].power = right_power
+    motors.set_power(0, left_power)
+    motors.set_power(1, right_power)
 
-    robot.sleep(KEYBOARD_SAMPLING_PERIOD / 1000)
+    utils.sleep(KEYBOARD_SAMPLING_PERIOD / 1000)
