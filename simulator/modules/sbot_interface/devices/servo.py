@@ -4,6 +4,8 @@ A wrapper for the Webots servo device.
 The servo will apply a small amount of variation to the power setting to simulate
 inaccuracies in the servo.
 """
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
