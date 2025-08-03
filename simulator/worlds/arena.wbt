@@ -43,6 +43,12 @@ DEF ROBOT1 SRObot {
   customData "start"
 }
 
+Robot {
+  name "competition_supervisor"
+  controller "competition_supervisor"
+  supervisor TRUE
+}
+
 Arena {
   size 5.4 5.4
   locked TRUE
