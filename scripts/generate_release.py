@@ -78,8 +78,12 @@ with TemporaryDirectory() as temp_dir_str:
     logger.info("Copying helper scripts to temp directory")
     shutil.copy(project_root / "scripts/setup.py", temp_dir / "setup.py")
     for script in project_root.glob("scripts/run_*.py"):
+        if "run_comp_" in str(script):
+            continue
         shutil.copy(script, temp_dir)
 
+    script_dir = temp_dir / "scripts"
+    script_dir.mkdir()
     logger.info("Copying example code to temp directory")
     shutil.copytree(project_root / "example_robots", temp_dir / "example_robots")
 
