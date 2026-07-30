@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
 A script to setup the environment for running the project in Webots.
+
 It will:
 1. Create a setup virtual environment and install uv into it
 2. Use uv to run the standard setup using the desired Python version
