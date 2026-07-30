@@ -8,6 +8,7 @@ It will:
 3. Set the python path in runtime.ini to the virtual environment python
 4. Repopulate the zone 0 folder with basic_robot.py if robot.py is missing
 """
+
 from __future__ import annotations
 
 import logging
@@ -16,10 +17,13 @@ import shutil
 import sys
 from pathlib import Path
 from subprocess import SubprocessError, check_call
-from venv import create
 
 logging.basicConfig(level=logging.INFO, format="[%(asctime)s] %(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
+
+BOLD_RED = "\x1b[31;1m"
+GREEN = "\x1b[32;20m"
+RESET_COLOUR = "\x1b[0m"
 
 
 def populate_python_config(runtime_ini: Path, venv_python: Path) -> None:
@@ -50,18 +54,20 @@ def populate_python_config(runtime_ini: Path, venv_python: Path) -> None:
         elif not in_python_section:
             runtime_content.append(line)
 
-    runtime_content.extend([
-        "",
-        "[python]",
-        f"COMMAND = {venv_python.absolute()}",
-        "",
-    ])
+    runtime_content.extend(
+        [
+            "",
+            "[python]",
+            f"COMMAND = {venv_python.absolute()}",
+            "",
+        ]
+    )
 
-    runtime_ini.write_text('\n'.join(runtime_content))
+    runtime_ini.write_text("\n".join(runtime_content))
 
 
 try:
-    if (Path(__file__).parent / 'simulator/VERSION').exists():
+    if (Path(__file__).parent / "simulator/VERSION").exists():
         # This is running from a release
         print("Running in release mode")
         project_root = Path(__file__).parent
@@ -76,8 +82,11 @@ try:
 
     venv_dir = project_root / "venv"
 
+    # Reset success flag
+    (venv_dir / "setup_success").unlink(missing_ok=True)
+
     logger.info(f"Creating virtual environment in {venv_dir.absolute()}")
-    create(venv_dir, with_pip=True)
+    check_call([sys.executable, "-m", "venv", venv_dir])
 
     logger.info(f"Installing dependencies from {requirements.absolute()}")
     if platform.system() == "Windows":
@@ -90,7 +99,13 @@ try:
         [str(venv_python), "-m", "pip", "install", "--upgrade", "pip", "setuptools", "wheel"],
         cwd=venv_dir,
     )
-    check_call([str(pip), "install", "-r", str(requirements)], cwd=venv_dir)
+    check_call(
+        [str(pip), "install", "--only-binary=:all:", "-r", str(requirements)],
+        cwd=venv_dir
+    )
+
+    logger.info("Preloading OpenCV & sbot")
+    check_call([str(venv_python), "-c", "import cv2;import sbot"], cwd=venv_dir)
 
     logger.info("Setting up Webots Python location")
 
@@ -100,6 +115,9 @@ try:
     populate_python_config(usercode_ini, venv_python)
     populate_python_config(supervisor_ini, venv_python)
 
+    # Mark that we succeeded
+    (venv_dir / "setup_success").touch()
+
     # repopulate zone 0 with example code if robot.py is missing
     zone_0 = project_root / "zone_0"
     if not (zone_0 / "robot.py").exists():
@@ -107,10 +125,12 @@ try:
         zone_0.mkdir(exist_ok=True)
         shutil.copy(project_root / "example_robots/basic_robot.py", zone_0 / "robot.py")
 except SubprocessError:
+    print(BOLD_RED)
     logger.error("Setup failed due to an error.")
-    input("An error occurred, press enter to close.")
+    input(f"An error occurred, press enter to close.{RESET_COLOUR}")
 except Exception:
+    print(BOLD_RED)
     logger.exception("Setup failed due to an error.")
-    input("An error occurred, press enter to close.")
+    input(f"An error occurred, press enter to close.{RESET_COLOUR}")
 else:
-    input("Setup complete, press enter to close.")
+    input(f"{GREEN}Setup complete, press enter to close.{RESET_COLOUR}")
