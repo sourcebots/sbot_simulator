@@ -1,3 +1,3 @@
-sbot==2025.1.1
-april_vision==3.0.0
+sbot==2026.1.0
+april_vision==3.1.0
 opencv-python-headless >=4.10,<5
