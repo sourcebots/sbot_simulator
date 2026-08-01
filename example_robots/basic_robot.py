@@ -1,7 +1,5 @@
 from sbot import arduino, motors, utils
 
-# robot = Robot()
-
 motors.set_power(0, 1)
 motors.set_power(1, 1)
 

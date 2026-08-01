@@ -4,29 +4,32 @@ on:
   push:
   workflow_dispatch:
 
+env:
+  WEBOTS_VER: "2025a"
+
 jobs:
   test:
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        py_version: ["3.8", "3.9", "3.10", "3.11"]
+        py_version: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
         include:
           - os: windows-latest
-            py_version: "3.8"
+            py_version: "3.10"
           - os: windows-latest
-            py_version: "3.11"
+            py_version: "3.13"
           - os: macos-latest
-            py_version: "3.8"
+            py_version: "3.10"
           - os: macos-latest
-            py_version: "3.11"
+            py_version: "3.13"
     runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
       with:
         fetch-depth: 0
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: ${{ matrix.py_version }}
     - name: Install dependencies
@@ -36,8 +39,9 @@ jobs:
     - name: Download & install Webots (Linux)
       if: runner.os == 'Linux'
       run: |
+        sudo apt-get update
         wget -O ./webots.deb \
-        https://github.com/cyberbotics/webots/releases/download/R2023b/webots_2023b_amd64.deb
+          https://github.com/cyberbotics/webots/releases/download/R$WEBOTS_VER/webots_${WEBOTS_VER}_amd64.deb
         sudo apt-get install --yes ./webots.deb
     - name: Download & extract Webots (Windows)
       # Windows install was problematic so we just extract the python library for typehints
@@ -46,14 +50,14 @@ jobs:
       run: |
         mkdir stubs
         C:\\msys64\\usr\\bin\\wget.exe -O ./webots.tar.bz2 \
-          https://github.com/cyberbotics/webots/releases/download/R2023b/webots-R2023b-x86-64.tar.bz2
+          https://github.com/cyberbotics/webots/releases/download/R$WEBOTS_VER/webots-R$WEBOTS_VER-x86-64.tar.bz2
         C:\\msys64\\usr\\bin\\tar.exe xvf webots.tar.bz2 --strip-components=4 \
           --directory=stubs webots/lib/controller/python/controller
     - name: Download & install Webots (macOS)
       if: runner.os == 'macOS'
       run: |
         wget -O ./webots.dmg \
-        https://github.com/cyberbotics/webots/releases/download/R2023b/webots-R2023b.dmg
+          https://github.com/cyberbotics/webots/releases/download/R$WEBOTS_VER/webots-R$WEBOTS_VER.dmg
         hdiutil mount ./webots.dmg
         sudo cp -R /Volumes/Webots/Webots.app /Applications
         hdiutil unmount /Volumes/Webots
@@ -74,11 +78,11 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
       with:
         fetch-depth: 0
     - name: Set up Python 3.10
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: "3.10"
     - name: Install release dependencies
@@ -99,7 +103,7 @@ jobs:
         unzip dist/*.zip -d dist/
         rm dist/sbot-simulator*.zip
     - name: Save built release
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: ${{ steps.release.outputs.RELEASE_NAME }}
         path: |
