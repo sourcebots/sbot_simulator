@@ -128,7 +128,7 @@ jobs:
       run: |
         poe installer
     - name: Save installer
-       uses: actions/upload-artifact@v6
+      uses: actions/upload-artifact@v6
       with:
         name: "install.bat"
         path: |

@@ -1,14 +1,10 @@
 #!/usr/bin/env python3
-"""
-Generates an install.bat script for running on a target to install the simulator.
-"""
+"""Generates an install.bat script for running on a target to install the simulator."""
 import logging
 import os
-import subprocess
-import sys
 import re
+import subprocess
 from pathlib import Path
-
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
