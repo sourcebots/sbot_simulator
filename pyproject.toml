@@ -101,6 +101,10 @@ cmd = "ruff check --fix-only $PYFOLDERS"
 help = "Build the release archive."
 cmd = "python ./scripts/generate_release.py"
 
+[tool.poe.tasks.installer]
+help = "Build the installer script"
+cmd = "python ./scripts/generate_installer.py"
+
 [tool.poe.tasks.setup]
 help = "Setup the virtual environment for running Webots."
 cmd = "python -m ./scripts/setup.py"
