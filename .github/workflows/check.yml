@@ -81,10 +81,10 @@ jobs:
     - uses: actions/checkout@v6
       with:
         fetch-depth: 0
-    - name: Set up Python 3.10
+    - name: Set up Python 3.13
       uses: actions/setup-python@v6
       with:
-        python-version: "3.10"
+        python-version: "3.13"
     - name: Install release dependencies
       run: |
         # pandoc is required for README.rst -> README.md conversion
@@ -108,3 +108,28 @@ jobs:
         name: ${{ steps.release.outputs.RELEASE_NAME }}
         path: |
           dist/*
+  
+  installer:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v6
+      with:
+        fetch-depth: 0
+    - name: Set up Python 3.13
+      uses: actions/setup-python@v6
+      with:
+        python-version: "3.13"
+    - name: Install release dependencies
+      run: |
+        sudo apt-get update
+        python -m pip install --upgrade pip
+        python -m pip install -r dev_requirements.txt
+    - name: Make installer
+      run: |
+        poe installer
+    - name: Save installer
+       uses: actions/upload-artifact@v6
+      with:
+        name: "install.bat"
+        path: |
+          dist-gh-release/install.bat
