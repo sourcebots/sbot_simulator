@@ -3,7 +3,7 @@
 
 PROTO Arena [
   field SFVec2f size 1 1
-  field SFColor wallColour 0.095395215 0.22841774 0.8000001
+  field SFColor wallColour 0.00784314 0.65098 0.94902
   field MFString floorTexture []
   field SFBool locked FALSE
 ] {

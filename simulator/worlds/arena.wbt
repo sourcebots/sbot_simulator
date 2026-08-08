@@ -25,7 +25,7 @@ TexturedBackgroundLight {
 
 DEF ROBOT0 SRObot {
   name "robot0"
-  translation 0.45 1.95 0
+  translation 0.45 2.2 0
   rotation 0 0 1 3.1415
   flagColour 0 1 0
   controllerArgs ["0"]
@@ -35,7 +35,7 @@ DEF ROBOT0 SRObot {
 
 DEF ROBOT1 SRObot {
   name "robot1"
-  translation -0.45 -1.95 0
+  translation -0.45 -2.2 0
   rotation 0 0 1 0
   flagColour 1 0.4 0
   controllerArgs ["1"]
@@ -97,19 +97,19 @@ DEF CANS Pose {
   children [
     Can {
       name "can1"
-      translation -0.46 0.60 0
+      translation -0.46 0.55 0
     }
     Can {
       name "can2"
-      translation -1.48 1.1 0
+      translation -1.48 1.02 0
     }
     Can {
       name "can3"
-      translation -1.5892 0.06 0
+      translation -1.72 0.06 0
     }
     Can {
       name "can4"
-      translation -2.33 -0.06 0
+      translation -2.45 -0.06 0
     }
     Can {
       name "can5"
@@ -118,19 +118,19 @@ DEF CANS Pose {
 
     Can {
       name "can6"
-      translation 0.46 -0.6 0
+      translation 0.46 -0.55 0
     }
     Can {
       name "can7"
-      translation 1.48 -1.1 0
+      translation 1.48 -1.02 0
     }
     Can {
       name "can8"
-      translation 1.5892 -0.06 0
+      translation 1.72 -0.06 0
     }
     Can {
       name "can9"
-      translation 2.33 0.06 0
+      translation 2.45 0.06 0
     }
     Can {
       name "can10"
